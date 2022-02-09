@@ -1,5 +1,5 @@
 
-# Not a one trick pony, completing and improving the process: How I used Kafka, Spark, Postgres, and Metabase in a Docker container to create a data engineering platform
+# How I used Kafka, Spark, Postgres, and Metabase in a Docker container to create a data engineering platform for auto insurance claims
 
 
 # Introduction & Goals
