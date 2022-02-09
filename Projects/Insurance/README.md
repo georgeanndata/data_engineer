@@ -21,7 +21,7 @@ In this project I have taken the auto claims data I used in my data science proj
   - Once you are finished add the conclusion here as well
 
   Architecture
-  ![Architecture](images/insurance_project_architecture.png)
+  ![Architecture](images/insurance_project_architecture_.png)
 
 
 # Contents
