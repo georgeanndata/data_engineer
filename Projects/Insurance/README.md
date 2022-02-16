@@ -71,6 +71,10 @@ The tools I used for this project included:
 
 ## Connect
 
+ Since I ingested the data in two ways, one via a bulk import and the other through streaming messages, I will outline each step separately below.
+
+<u>__Bulk Import__</u>
+
 Using Python, I created a function that checks that the file csv exists and if so, loads it into a Pandas dataframe. If it doesn't exist, it will throw an error. 
 
 ![](images/code/importCSV.png)
@@ -91,18 +95,32 @@ For the bulk importing, I took the dataframe and using Python and SQLAcademy, bu
 ![](images/code/sql_alchemy_3.png)
 
 
- Since I will be ingesting the data in two ways, one via a bulk import dumb to Postgres
+<u>__Message Streaming__</u>
 
-For the streaming, I used Python to convert the csv file to a JSON file. 
+For the streaming, I used Python to create a JSON file from the dataframe that I will need for the API. 
+
+![](images/code/transform_api.png
+
+
+ <i>Source code: bulk_import_auto_insurance_data.py</i>
 
 ## Buffer
-Apache Kafka
+
+For the data that is streaming into the system, I used Apache Kafka as the buffer.  As mentioned earlier, I put all the tools in a Docker container. 
+
+
+
 ## Processing
-Apache Spark
+
+For the processing of the data, I used Apache Spark. As mentioned earlier, I put all the tools in a Docker container.
+
 ## Storage
-PostGres
+
+I used a PostGres for data storage.  As mentioned earlier, I put all the tools in a Docker container.
+
+
 ## Visualization
-Metabase
+I used Metabase as the visualiation tool. As mentioned earlier, I put all the tools in a Docker container.
 
 # Pipelines
 - Explain the pipelines for processing that you are building
