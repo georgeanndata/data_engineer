@@ -10,11 +10,9 @@ __Links to programs__:
 * <a href="https://data-science-infinity.teachable.com/">Data Science Infinity</a>
 * <a href="https://learndataengineering.com">Data Engineering Academy</a>
 
-Architecture
+__Architecture__
 
-  Docker container contains Kafka, Spark, Postgres and Metabase.  
-
-  ![Architecture](images/insurance_project_architecture.png)
+![](/images/nsurance_project_architecture_.png) 
 
 
 For this project I have taken an auto claims data csv file and ingested it into the Postgres database in two ways.  
@@ -55,7 +53,7 @@ I used the same [auto insurance fraud dataset](data/insurance_claims.csv) that I
 
 The dataset contains 40 attributes for 1,000 auto insurance claims, 247 that were labeled as fraudulent and 753 that were labeled as non-fraudulent. 
 
-![alt text](imgages/data_points_in_file.png) 
+![alt text](/images/data_points_in_file.png) 
 
 I decided to ingest the file as is, leaving the data cleansing to the data scientist. 
 
