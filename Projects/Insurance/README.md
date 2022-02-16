@@ -72,6 +72,7 @@ The tools I used for this project included:
 ## Connect
 
 Using Python, I created a function that checks that the file csv exists and if so, loads it into a Pandas dataframe. If it doesn't exist, it will throw an error. 
+
 ![](images/code/importCSV.png)
 
 After importing, inspect the dataframe for anything strange. 
@@ -84,6 +85,7 @@ In order to create the table in Postgres using SQLAlchemy, column names cannot c
 
 
 For the bulk importing, I took the dataframe and using Python and SQLAcademy, bulk imported it into the Postgres database. 
+
 ![](images/code/sql_alchemy_1.png)
 ![](images/code/sql_alchemy_2.png)
 ![](images/code/sql_alchemy_3.png)
