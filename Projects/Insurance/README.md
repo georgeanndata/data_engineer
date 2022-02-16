@@ -103,7 +103,7 @@ For the streaming, I used Python to create a JSON file from the dataframe that I
 
 
    
- ![<i><b>Source code</b></i>:](bulk_import_auto_insurance_data.py)
+ ![Source code](bulk_import_auto_insurance_data.py)
 
 ## Buffer
 
