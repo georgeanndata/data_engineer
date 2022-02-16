@@ -99,10 +99,11 @@ For the bulk importing, I took the dataframe and using Python and SQLAcademy, bu
 
 For the streaming, I used Python to create a JSON file from the dataframe that I will need for the API. 
 
-![](images/code/transform_api.png
+![](images/code/transform_for_api.png
 
 
- <i>Source code: bulk_import_auto_insurance_data.py</i>
+   
+ ![<i><b>Source code</b></i>:](bulk_import_auto_insurance_data.py
 
 ## Buffer
 
