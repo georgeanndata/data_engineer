@@ -12,7 +12,6 @@ __Links to programs__:
 
 __Architecture__
 
-
 ![](images/insurance_project_architecture_.png)
 
 
@@ -57,11 +56,9 @@ The dataset contains 40 attributes for 1,000 auto insurance claims, 247 that wer
 
 ![](images/data_points_in_file.png)
 
-I decided to ingest the file as is, leaving the data cleansing to the data scientist. 
-
 # Used Tools
 
-The tools I used for this project were:
+The tools I used for this project included:
 
 * Python
 * SQLAlchemy
@@ -73,6 +70,29 @@ The tools I used for this project were:
 * Docker container for above tools 
 
 ## Connect
+
+Using Python, I created a function that checks that the file csv exists and if so, loads it into a Pandas dataframe. If it doesn't exist, it will throw an error. 
+![](images/code/importCSV.png)
+
+After importing, inspect the dataframe for anything strange. 
+
+![](images/code/inspectDataFrame.png)
+
+In order to create the table in Postgres using SQLAlchemy, column names cannot contain certain extended characters  (*, ! and -.) and also cannot start with _, even though _ is an allowable extended character. Using Python I checked that the column names adhered to this requirement and if they did not to update them accordingly.
+
+![](images/code/df_extended_chars_colNames.png)
+
+
+For the bulk importing, I took the dataframe and using Python and SQLAcademy, bulk imported it into the Postgres database. 
+![](images/code/sql_alchemy_1.png)
+![](images/code/sql_alchemy_2.png)
+![](images/code/sql_alchemy_3.png)
+
+
+ Since I will be ingesting the data in two ways, one via a bulk import dumb to Postgres
+
+For the streaming, I used Python to convert the csv file to a JSON file. 
+
 ## Buffer
 Apache Kafka
 ## Processing
