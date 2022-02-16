@@ -3,25 +3,29 @@
 
 
 # Introduction & Goals
-Last year I completed a [data science project]
-(https://georgeanndata.github.io/2021/08/01/insurance_fraud_detection.html) where I used Python, Pandas and Tableau to evaluate and report on auto insurance fraud. After completing the project, I wondered if it would be easier for a data scientist to access the data without having to import the csv file themself and how much better it would be for them to be working on the most updated data available, instead of a file they had stored locally, which in all probability was not current.  Since I have an ETL and data quality background, I decided to take another program to learn data engineering so that I could create a robust data engineering platform that would conveniently supply the most updated auto insurance fraud data to the data scientist, thus not only making their jobs easier but also improving their analysis and reporting.  
+Last year I completed a 
+<a href="https://georgeanndata.github.io/2021/08/01/insurance_fraud_detection.html">data science project</a> where I used Python, Pandas and Tableau to better predict auto insurance fraud claims. After completing the project, I wondered if it would be more helpful for a data scientist to be able access the data without having to import the csv file uisng Python and how much better it would be for them to be working on the most updated data available, instead of a file they had stored locally, which in all probability was not current.  Since I have an ETL and data quality background, I decided to take  a data engineering program so I could create a platform that would conveniently supply the most updated auto insurance fraud data to the data scientist, making their jobs not only easier but also improving their analysis and reporting.  
 
-Intrestink links:
-*My data science project can be found here:  https://georgeanndata.github.io/2021/08/01/insurance_fraud_detection.html
-* Data Science Infinity
-* Data Engineering Academy
+__Links to programs__:
+* <a href="https://data-science-infinity.teachable.com/">Data Science Infinity</a>
+* <a href="https://learndataengineering.com">Data Engineering Academy</a>
 
-In this project I have taken the auto claims data I used in my data science project
-- Introduce your project to the reader
-- Orient this section on the Table of contents
-- Write this like an executive summary
-  - With what data are you working
-  - What tools are you using
-  - What are you doing with these tools
-  - Once you are finished add the conclusion here as well
+Architecture
 
-  Architecture
-  ![Architecture](images/insurance_project_architecture_.png)
+  Docker container contains Kafka, Spark, Postgres and Metabase.  
+
+  ![Architecture](images/insurance_project_architecture.png)
+
+
+For this project I have taken an auto claims data csv file and ingested it into the Postgres database in two ways.  
+
+1. The first way was stream it as an API message into Apache Kafka for buffering to Apache Spark for processing and Postgres for storing. 
+2. The second way was by using Python and SQLAlchemy to bulk import the data into Postgres.
+
+The reason I used two ways was so there was a primary process (__<em>streaming</em>__) and a backup process (__<em>bulk import</em>__). 
+
+Once the data was stored in the Postgres database, I configured Metabase (located in same Docker Container) as the visulaization tool that business users could use to report on and analyze the data.
+
 
 
 # Contents
@@ -46,17 +50,27 @@ In this project I have taken the auto claims data I used in my data science proj
 
 
 # The Data Set
-- Explain the data set
-- Why did you choose it?
-- What do you like about it?
-- What is problematic?
-- What do you want to do with it?
+
+I used the same [auto insurance fraud dataset](data/insurance_claims.csv) that I used from my data science project.  
+
+The dataset contains 40 attributes for 1,000 auto insurance claims, 247 that were labeled as fraudulent and 753 that were labeled as non-fraudulent. 
+
+![alt text](imgages/data_points_in_file.png) 
+
+I decided to ingest the file as is, leaving the data cleansing to the data scientist. 
 
 # Used Tools
-- Explain which tools do you use and why
-- How do they work (don't go too deep into details, but add links)
-- Why did you choose them
-- How did you set them up
+
+The tools I used for this project were:
+
+* Python
+* SQLAlchemy
+* FastAPI
+* Apache Kafka
+* Apache Spark
+* Postgres
+* Metabase 
+* Docker container for above tools 
 
 ## Connect
 ## Buffer
