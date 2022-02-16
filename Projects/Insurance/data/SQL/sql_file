@@ -1,0 +1,90 @@
+CREATE TABLE insurance_claims (
+months_as_customer INT,
+age INT,
+policy_number INT,
+policy_bind_date TIMESTAMP,
+policy_state CHAR(2),
+policy_csl VARCHAR(100),
+policy_deductable INT,
+policy_annual_premium INT,
+umbrella_limit INT,
+insured_zip INT,
+insured_sex VARCHAR(100),
+insured_education_level VARCHAR(100),
+insured_occupation VARCHAR(100),
+insured_hobbies VARCHAR(100),
+insured_relationship VARCHAR(100),
+capital_gains INT,
+capital_loss INT,
+incident_date VARCHAR(100),
+incident_type VARCHAR(100),
+collision_type VARCHAR(100),
+incident_severity VARCHAR(100),
+authorities_contacted VARCHAR(100),
+incident_state VARCHAR(100),
+incident_city VARCHAR(100),
+incident_location VARCHAR(100),
+incident_hour_of_the_day INT,
+number_of_vehicles_involved  INT,
+property_damage VARCHAR(100),
+bodily_injuries INT,
+witnesses INT,
+police_report_available VARCHAR(100),
+total_claim_amount INT,
+injury_claim INT,
+property_claim INT,
+vehicle_claim INT,
+auto_make VARCHAR(100),
+auto_model VARCHAR(100),
+auto_year INT,
+fraud_reported VARCHAR(100),
+_c39 INT
+);
+
+SELECT * FROM insurance_claims;
+
+ALTER TABLE insurance_claims 
+    ALTER COLUMN policy_bind_date TYPE timestamptz,
+    ALTER COLUMN _c39 TYPE double precision;
+	
+
+select count(*), incident_severity, 
+	case when fraud_reported = 'Y' then 'Yes' 
+	else 'No' end as Fraud_Status
+from insurance_claims
+group by incident_severity, fraud_reported
+order by incident_severity, count(*) desc;
+
+CREATE TABLE racing(
+	make VARCHAR,
+	model VARCHAR,
+	year INTEGER,
+	price INTEGER
+)
+
+INSERT INTO racing (make, model, year, price)
+VALUES
+('Nissan', 'Stanza', 1990, 2000),
+('Dodge', 'Neon', 1995, 800),
+('Dodge', 'Neon', 1998, 2500),
+('Dodge', 'Neon', 1999, 3000),
+('Ford', 'Mustang', 2001, 1000),
+('Ford', 'Mustang', 2005, 2000),
+('Subaru', 'Impreza', 1997, 1000),
+('Mazda', 'Miata', 2001, 5000),
+('Mazda', 'Miata', 2001, 3000),
+('Mazda', 'Miata', 2001, 2500),
+('Mazda', 'Miata', 2002, 5500),
+('Opel', 'GT', 1972, 1500),
+('Opel', 'GT', 1969, 7500),
+('Opel', 'Cadet', 1973, 500)
+;
+
+select make from racing;
+
+select distinct make from racing;
+
+select distinct make, model from racing;
+
+select distinct on (model) make, model, year from racing;
+
