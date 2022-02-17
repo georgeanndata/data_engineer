@@ -103,39 +103,70 @@ For the streaming, I used Python to create a JSON file from the dataframe that I
 
 
    
- ![Source code](bulk_import_auto_insurance_data.py)
+ ![Source code](/bulk_import_auto_insurance_data.py)
 
 ## Buffer
 
-For the data that is streaming into the system, I used Apache Kafka as the buffer.  As mentioned earlier, I put all the tools in a Docker container. 
+For the data that is streamed into the system, I used Apache Kafka as the buffer.  As mentioned earlier, I put all the tools in a Docker container. 
 
+In the docker-compose file, I used latest bitnami image for both the Zookeeper and Kafka services,  added them to the same network (__insurance-streaming__) and gave the Kafka service both an internal and external listeners; internal so services on the Docker container can communicate with Kafka and external so communication can be done outside of the Docker container, such when using Postman that is installed on a local client for testing APIs.
 
+![](images/code/docker-compose_kafka_zookeeper.png)
+
+![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Processing
 
-For the processing of the data, I used Apache Spark. As mentioned earlier, I put all the tools in a Docker container.
+For the processing of the data, I used Apache Spark. In the docker-compose file, I used the jupyter/pyspark-notebook:spark-2 image, a volume location where the Spark data will be presisted and added it to the same netork as the other services. 
+
+mention volumes
+
+![](images/code/docker-compose-spark.png)
+
+
+![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Storage
 
-I used a PostGres for data storage.  As mentioned earlier, I put all the tools in a Docker container.
+For storing the data I used a PostGres database.  
 
+In the docker-compose file I designated, postgres:12.9 for Postgres and dpage/pgadmin4 for PGAdmin as the images, a volume location where the Postgres data will be presisted and assigned it to the same network as the other services.
+
+For security reasons, I used an environment file to hold the Postgres database name, Postgres user name and password, PGadmin email and PGadmin password.  
+
+_*Ignored the postgres.env file for Github._
+
+![](images/code/docker-compose-postgres.png)
+
+
+![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Visualization
-I used Metabase as the visualiation tool. As mentioned earlier, I put all the tools in a Docker container.
+
+I used Metabase as the visualiation tool. For its image I used metabase/metabase, a volume location where the Metabase data will be presisted and assigned it to the same network as the other services.
+
+For security reasons, I used an environment file to hold the metabase database type, name, port, user name and password. Additionally, the metabase database host, encryption secret key, java timezone and port. 
+
+![](images/code/docker-compose-metabase.png)
+
+_*Ignored the metabase_database.env file for Github._
+
+
+![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
 
 # Pipelines
 - Explain the pipelines for processing that you are building
 - Go through your development and add your source code
+Pull 
+explain API, show process and 
 
 ## Stream Processing
+add section about api and docker-compose file
 ### Storing Data Stream
 ### Processing Data Stream
 ## Batch Processing
 ## Visualizations
 
-# Demo
-- You could add a demo video here
-- Or link to your presentation video of the project
 
 # Conclusion
 Write a comprehensive conclusion.
