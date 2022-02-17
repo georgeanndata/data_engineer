@@ -42,7 +42,6 @@ Once the data was stored in the Postgres database, I configured Metabase (locate
     - [Processing Data Stream](#processing-data-stream)
   - [Batch Processing](#batch-processing)
   - [Visualizations](#visualizations)
-- [Demo](#demo)
 - [Conclusion](#conclusion)
 - [Follow Me On](#follow-me-on)
 - [Appendix](#appendix)
@@ -113,7 +112,7 @@ In the docker-compose file, I used latest bitnami image for both the Zookeeper a
 
 ![](images/code/docker-compose_kafka_zookeeper.png)
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Processing
 
@@ -124,7 +123,7 @@ mention volumes
 ![](images/code/docker-compose-spark.png)
 
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Storage
 
@@ -139,7 +138,7 @@ _*Ignored the postgres.env file for Github._
 ![](images/code/docker-compose-postgres.png)
 
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Visualization
 
@@ -152,7 +151,7 @@ For security reasons, I used an environment file to hold the metabase database t
 _*Ignored the metabase_database.env file for Github._
 
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 # Pipelines
 - Explain the pipelines for processing that you are building
