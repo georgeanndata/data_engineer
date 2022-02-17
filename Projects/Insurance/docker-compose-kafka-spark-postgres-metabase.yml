@@ -1,0 +1,82 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+     - insurance-streaming
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+    depends_on:
+     - zookeeper
+    ports:
+     - 9093:9093  
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT     #add aditional listener for external
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093                              #9092 will be for other containers, 9093 for your windows client
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093     #9092 will be for other containers, 9093 for your windows client
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+    networks:
+     - insurance-streaming
+  
+  spark:
+    image: 'jupyter/pyspark-notebook:spark-2'
+    ports:
+      - '8888:8888'
+      - "4040-4080:4040-4080"
+    volumes:
+      - ./ApacheSpark/:/home/jovyan/work
+    networks:
+      - insurance-streaming
+
+  api-ingest:
+    image: 'api-ingest'
+    ports:
+       - '80:80'
+    networks:
+      - insurance-streaming
+
+  postgres_ins:
+    image: postgres:12.9
+    restart: always
+    env_file:
+      - ./config/postgres.env
+    ports:
+     - "5432:5432"
+    volumes:
+     - "/var/lib/postgresql/data/"
+    networks:
+    - insurance-streaming 
+  
+  pgadmin:  
+    image: dpage/pgadmin4
+    env_file:
+     - ./config/postgres.env
+    ports:
+     - "5050:80" 
+    networks:
+     - insurance-streaming
+
+  metabase:
+    image: metabase/metabase
+    env_file:
+     - ./config/metabase_database.env
+    volumes:
+      # Volumes where Metabase data will be persisted
+      - '/var/lib/metabase-data'
+    depends_on:
+     - 'postgres_ins'
+    networks:
+      - insurance-streaming 
+
+networks:
+  insurance-streaming:
+    driver: bridge
