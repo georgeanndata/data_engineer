@@ -28,7 +28,7 @@ services:
      - insurance-streaming
   
   spark:
-    image: 'jupyter/pyspark-notebook:spark-2'
+    image: jupyter/pyspark-notebook:spark-2'
     ports:
       - '8888:8888'
       - "4040-4080:4040-4080"
