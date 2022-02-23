@@ -367,12 +367,10 @@ import_data(engine,table_name, csv_file_data)
 ## Stream Processing
 
 ### __Processing Data Stream__
-
 <br>
 
 #### __1. Create and Test API__
 <br>
-
 
 __Create API to mimic production streaming__
   
@@ -499,7 +497,7 @@ def produce_kafka_string(json_as_string):
 <br>
 
 __Prerequisites for API in Docker__
- 1. Create requirements.txt file to hold libraries needed to build containers. The  library needed is kafak-python for writing to Kafka. 
+ 1. Create requirements.txt file to hold the libraries needed to build the container. The  library needed is kafak-python for writing to Kafka. 
 
 ```python
 kafka-python
@@ -591,7 +589,6 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 #### __2.  Apache Kafka__
 <br>
-
 1. Create topic
   - From */opt/bitnami.kafka/bin* in the Kafka container, enter <br>
   *__kafka-topics.sh --create --topic auto-claims-ingestion-topic --bootstrap-server localhost:9093 --partitions 1 --replication-factor 1__*
@@ -603,15 +600,11 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 <br>
 
 #### __3. Apache Spark__
-
 <br>
 
-*For docker-compose configuration, see [Spark](#processing)*
-
 __Step 1__: Get token to get jupyter
--listeng for topic
--write into a new topic
-__Step 1__: Create session
+
+__Step 2__: Create session
 ```python
 from pyspark.sql import SparkSession
 
@@ -626,11 +619,9 @@ spark = (SparkSession
 #sc = spark.sparkContext
 
 ```
-__Step 1__: Read message from Kafka
+__Step 3__: Read message from Kafka
 
 ```python
-
-# Read the message from the kafka stream
 # Read the message from the kafka stream
 df = spark \
   .readStream \
@@ -638,11 +629,24 @@ df = spark \
   .option("kafka.bootstrap.servers", "kafka:9092") \
   .option("subscribe", "auto-claims-ingestion-topic") \
   .load()
+df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+```
+__Step 4__: Create a small temporary view
 
-# convert the binary values to string
-df1 = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+```python
+#Create a small temporary view for SparkSQL
+df.createOrReplaceTempView("message")
+```
+__Step 5__: Write the message to the console
+```python
+# Write out the message to the console of the environment
+res = spark.sql("SELECT * from message")
+res.writeStream.format("console") \
+            .outputMode("append") \
+            .start() 
 ```
 
+__Step 6__: Write the message back to another topic
 ```python
 # Write the message back into Kafka in another topic that you are going to listen to with a local consumer
 ds = df \
@@ -655,10 +659,15 @@ ds = df \
   .awaitTermination()
 ```
 
+__Step 7__: Test using Postman
 
+![Source code](ApachSpark/01-streaming-kafka-src-dst.ipynb)
+
+*For docker-compose configuration, see [Spark](#processing)*
 
 ### __Storing Data Stream__
 
+Adding onto the Spark processing above:
 
 __Step 1__: Add Postgres packages and Postgres configurations to the SparkSession
 ```python
@@ -688,7 +697,7 @@ def foreach_batch_function(df, epoch_id):
     # Transform and write batchDF in this foreach
     # writes the dataframe with complete kafka message into postgres
  
-    db_target_url = "jdbc:postgresql://postgres_ins:5432/postgresdb"#public.autoclaimsdocs?user=postgres&password=data"#"jdbc:postgresql:postgresdb"
+    db_target_url = "jdbc:postgresql://postgres_ins:5432/postgresdb"
     table = "autoclaims_docs" #public.autoclaims_docs
     db_target_properties =  {"driver": 'org.postgresql.Driver',"user":"postgres", "password":"data"}
 
@@ -720,6 +729,13 @@ def foreach_batch_function(df, epoch_id):
     #df3.show()
     pass
 ```
+
+__Step 7__: Test using Postman
+
+__Step 8__: Log into Postgres to ensure table and data is created
+
+![Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
+
 <br>
 
 *For docker-compose configuration, see [Postgres](#storage).*
