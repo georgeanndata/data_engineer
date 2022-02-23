@@ -106,7 +106,7 @@ services:
 
 
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Processing
 
@@ -124,7 +124,7 @@ For the processing of the data, I used Apache Spark. In the docker-compose file,
       - insurance-streaming
 ```
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Storage
 
@@ -159,7 +159,7 @@ postgres_ins:
 ```
 
 
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Visualization
 
@@ -185,7 +185,7 @@ _*Ignored the metabase_database.env file for Github._
     networks:
       - insurance-streaming 
 ```
-![Source code](/docker-compose-kafka-spark-postgres-metabase.yml)
+![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
 
 # Pipelines
 
