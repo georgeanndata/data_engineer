@@ -60,7 +60,7 @@ The tools I used for this project included:
 
 For this project I have taken an auto claims data CSV file and ingested it into the Postgres database in two ways.  
 
-1. The first way was by streaming. I create a POST API using FastAPI from the CSV file to create a system that would mimic claims streaming into the system like it would in production.
+1. The first way was by streaming. I create a POST API using FastAPI from the CSV file to mimic claims streaming into the system like it would in production.
 2. The second way was by using Python and SQLAlchemy to bulk import the data into Postgres.
 
 The reason I used two ways was so there was a primary process (__<em>streaming</em>__) and a backup process (__<em>bulk import</em>__). 
@@ -271,7 +271,7 @@ csv_file_data.head()
 csv_file_data.info()
 ```
 
-I then took the dataframe used SQLAcademy to imported it into the Postgres database. 
+I then took the dataframe and used SQLAcademy to import the data into the Postgres database. 
 
 ```python
 #####################################################
@@ -368,26 +368,146 @@ import_data(engine,table_name, csv_file_data)
 
 ### __Processing Data Stream__
 
-1. __Create API to mimic production streaming__
+<br>
+
+#### __1. Create and Test API__
+<br>
+
+
+__Create API to mimic production streaming__
   
   To mimic the claims streaming into the system, like it would in production, I created a POST API using FastAPI.
 
 ```python
-add code here
+# You need this to use FastAPI, work with statuses and be able to end HTTPExceptions
+from fastapi import FastAPI, status, HTTPException
+ 
+# You need this to be able to turn classes into JSONs and return
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+# Needed for json.dumps
+import json
+
+# Both used for BaseModel
+from pydantic import BaseModel
+
+from datetime import datetime
+from kafka import KafkaProducer, producer
+
+
+# Create class (schema) for the JSON
+# Date get's ingested as string and then before writing validated
+class AutoClaim(BaseModel):
+    months_as_customer: int
+    age:  int
+    policy_number: int
+    policy_bind_date: str 
+    policy_state: str
+    policy_csl: str 
+    policy_deductable: int
+    policy_annual_premium: float 
+    umbrella_limit: int
+    insured_zip: int 
+    insured_sex: str 
+    insured_education_level: str 
+    insured_occupation: str 
+    insured_hobbies: str        
+    insured_relationship: str  
+    capital_gains: int   
+    capital_loss: int  
+    incident_date: str 
+    incident_type: str 
+    collision_type: str 
+    incident_severity: str 
+    authorities_contacted: str 
+    incident_state: str 
+    incident_city: str 
+    incident_location: str 
+    incident_hour_of_the_day: int 
+    number_of_vehicles_involved: int 
+    property_damage: str
+    bodily_injuries: int 
+    witnesses: int 
+    police_report_available: str 
+    total_claim_amount: int 
+    injury_claim: int 
+    property_claim: int 
+    vehicle_claim: int 
+    auto_make: str 
+    auto_model: str 
+    auto_year: int 
+    fraud_reported: str
+    c39: str = None
+ 
+
+# This is important for general execution and the docker later
+app = FastAPI()
+
+# Base URL
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+# Add a new auto claim
+@app.post("/autoclaim")
+async def post_auto_claim(item: AutoClaim): #body awaits a json with invoice item information
+    print("Message received")
+    try:
+        # Evaluate the timestamp and parse it to datetime object you can work with
+        ###date = datetime.strptime(item.policy_bind_date, "%d/%m/%Y %H:%M")
+
+        ###print('Found a timestamp: ', date)
+
+        # Replace strange date with new datetime
+        # Use strftime to parse the string in the right format (replace / with - and add seconds)
+        ###item.AutoClaim = date.strftime("%d-%m-%Y %H:%M:%S")
+        ###print("New item date:", item.incident_date)
+        
+        # Parse item back to json
+        json_of_item = jsonable_encoder(item)
+        
+        # Dump the json out as string
+        json_as_string = json.dumps(json_of_item)
+        print(json_as_string)
+        
+        # Produce the string
+        produce_kafka_string(json_as_string)
+
+        # Encode the created customer item if successful into a JSON and return it to the client with 201
+        return JSONResponse(content=json_of_item, status_code=201)
+    
+    # Will be thrown by datetime if the date does not fit
+    # All other value errors are automatically taken care of because of the InvoiceItem Class
+    except ValueError:
+        return JSONResponse(content=jsonable_encoder(item), status_code=400)
+        
+
+def produce_kafka_string(json_as_string):
+    # Create producer
+         # below when testing API-Ingest to Docker
+        producer = KafkaProducer(bootstrap_servers='kafka:9092',acks=1,  api_version=(0,11,5))
+       
+        # Write the string as bytes because Kafka needs it this way
+        producer.send('auto-claims-ingestion-topic', bytes(json_as_string, 'utf-8'))
+        producer.flush()
+
+
 ```
 
 ![Source code](API-Ingest/app/main.py)
+<br>
 
-2. __Prerequisites for API in Docker__
-  - Create requirements.txt file to hold libraries needed to build containers. The  library needed is kafak-python for writing to Kafka. 
+__Prerequisites for API in Docker__
+ 1. Create requirements.txt file to hold libraries needed to build containers. The  library needed is kafak-python for writing to Kafka. 
 
 ```python
 kafka-python
 ```
 
-![Source code](API-Ingest/requirements.txt)
+![Source code](API-Ingest/requirements.txt)<br>
 
-  - Create dockerfile for building the container. It installed the kafka-python library so the API can connect to Kafka.
+  2. Create dockerfile for building the container. It installed the kafka-python library so the API can connect to Kafka.
 
 ```python
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
@@ -402,63 +522,216 @@ COPY ./app /app
 
 ![Source code](API-Ingest/dockerfile)
 
+<br>
 
-__I then needed to build the API__
+__Build the API__
 
-I then deployed the API.
+In Terminal, I entered the following in the API-Ingest folder of project to build the API image
+  ```python
+  docker build -t api-ingest .
+```
+<br>
+
+__Deploy the API__
 
 
+In Terminal, I entered the following in from the project folder to deploy the API
 
-
-docker compose for api ingest
-In API-Ingest:
-    Dockerfile - need for building our container
-    Requirements.txt - for building our container, contain list of libraries that we need (main.py)
-
-build api
-deploy api
+```python
+docker run --rm --network insurance-streaming --name my-api-ingest -p 80:80 api-ingest
+```
 
 __Test API using Postman__
 
-Step 1:
-From the csv dataframe, I created a new JSON column converting the dataframe object to a JSON string 
-Step 2:
-Created a new dataframe from just the new JSON column
-Step 3:
+__Create JSON file__<br>
+
+__Step 1__:
+From the csv dataframe, I created a new JSON column converting the dataframe object to a JSON string<br> 
+__Step 2__:
+Created a new dataframe from just the new JSON column<br>
+__Step 3__:
 Saved new json dataframe to a file to be used to create the API
 
-![](images/code/transform_for_api.png)
+```python
+import numpy as np
+from numpy import add
+import pandas as pd
+
+####################################################
+# DataFrame add JSON for API
+#####################################################
+
+def json_api (csv):
+    ## make a copy of csv dataframe to apply json for API
+    data_json_tmp = pd.DataFrame(csv_file_data)
+
+    ## Creat new JSON column from the CSV dataframe
+    data_json_tmp['json'] = data_json_tmp.to_json(orient='records', lines=True).splitlines()
+
+    ## Take out json column and put it into new json dataframe
+    json_columns = data_json_tmp['json']
+ 
+    ## print out new json dataframe to file
+    np.savetxt(r'./json.txt', json_columns.values, fmt='%s')
+    print('File has been created!')
+
+json_api(csv_file_data)
+```
 
 ![Source code](client/transformer.py)
 
-Step 4:
-From 
+__Step 4__:
 
-#### Apache Kafka
+From Postman, import file and enter localhost:80/autoclaims.  <br>
+*__(201 returned)__*
 
-For docker-compose configuration, see [Kafka](#buffer).
+![](images/postman.png)
 
-Kafka
-create kafka topic
+<br>
 
+#### __2.  Apache Kafka__
+<br>
 
-#### Apache Spark
-Spark
--get token to get jupyter
+1. Create topic
+  - From */opt/bitnami.kafka/bin* in the Kafka container, enter <br>
+  *__kafka-topics.sh --create --topic auto-claims-ingestion-topic --bootstrap-server localhost:9093 --partitions 1 --replication-factor 1__*
+
+<br>
+
+*For docker-compose configuration, see [Kafka](#buffer)*
+
+<br>
+
+#### __3. Apache Spark__
+
+<br>
+
+*For docker-compose configuration, see [Spark](#processing)*
+
+__Step 1__: Get token to get jupyter
 -listeng for topic
 -write into a new topic
--create session
+__Step 1__: Create session
+```python
+from pyspark.sql import SparkSession
+
+# Create Spark session & context
+spark = (SparkSession
+         .builder
+         .master('local')
+         .appName('kafka-streaming')
+         # Add kafka package
+         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5")
+         .getOrCreate())
+#sc = spark.sparkContext
+
+```
+__Step 1__: Read message from Kafka
+
+```python
+
+# Read the message from the kafka stream
+# Read the message from the kafka stream
+df = spark \
+  .readStream \
+  .format("kafka") \
+  .option("kafka.bootstrap.servers", "kafka:9092") \
+  .option("subscribe", "auto-claims-ingestion-topic") \
+  .load()
+
+# convert the binary values to string
+df1 = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+```
+
+```python
+# Write the message back into Kafka in another topic that you are going to listen to with a local consumer
+ds = df \
+  .writeStream \
+  .format("kafka") \
+  .option("kafka.bootstrap.servers", "kafka:9092") \
+  .option("topic", "spark-output") \
+  .option("checkpointLocation", "/tmp") \
+  .start() \
+  .awaitTermination()
+```
 
 
 
-### Storing Data Stream
+### __Storing Data Stream__
 
 
+__Step 1__: Add Postgres packages and Postgres configurations to the SparkSession
+```python
+         # Versions need to match the Spark version (trial & error)
+         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,org.postgresql:postgresql:42.3.1")
+         # Postgres config including the username and password from compose file
+         .config("spark.postgres.input.uri","jdbc:postgresql://postgres_ins:5432/postgresdb.autoclaims_docs?user=postgres&password=data")
+         .config("spark.postgres.output.uri","jdbc:postgresql://postgres_ins:5432/postgresdb.autoclaims_docs?user=postgres&password=data")
+         .config('spark.sql.session.timeZone', "America/New_York")
+         .getOrCreate())
+```
+__Step 2__: Add the following reading the message from Kafka
 
-## Visualizations
+```python
+# Read the message from the kafka stream
 
-### Metabase
+# convert the binary values to string
+df1 = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+```
 
+__Step 3__: Add to write message into Postgres
+```python
+from pyspark.sql.functions import from_json, current_timestamp
+
+# Write the message into Posgres
+def foreach_batch_function(df, epoch_id):
+    # Transform and write batchDF in this foreach
+    # writes the dataframe with complete kafka message into postgres
+ 
+    db_target_url = "jdbc:postgresql://postgres_ins:5432/postgresdb"#public.autoclaimsdocs?user=postgres&password=data"#"jdbc:postgresql:postgresdb"
+    table = "autoclaims_docs" #public.autoclaims_docs
+    db_target_properties =  {"driver": 'org.postgresql.Driver',"user":"postgres", "password":"data"}
+
+    
+    #Transform the values of all rows in column value and create a dataframe out of it (will also only have one row)
+    df2=df.withColumn("value",from_json(df.value,MapType(StringType(),StringType())))  
+   
+    # Transform the dataframe so that it will have individual columns 
+    df3 = df2.select(["value.months_as_customer","value.age","value.policy_number","value.policy_bind_date", \
+    "value.policy_state","value.policy_csl","value.policy_deductable","value.policy_annual_premium", \
+    "value.umbrella_limit","value.insured_zip","value.insured_sex","value.insured_education_level", \
+    "value.insured_occupation","value.insured_hobbies","value.insured_relationship","value.capital_gains", \
+    "value.capital_loss","value.incident_date","value.incident_type","value.collision_type",  \
+    "value.incident_severity","value.authorities_contacted","value.incident_state","value.incident_city",  \
+    "value.incident_location","value.incident_hour_of_the_day","value.number_of_vehicles_involved","value.property_damage", \
+    "value.bodily_injuries","value.witnesses","value.police_report_available","value.total_claim_amount", \
+    "value.injury_claim","value.property_claim", "value. vehicle_claim","value.auto_make", "value.auto_model", \
+    "value.auto_year","value.fraud_reported","value.c39"])
+    
+    ## add load datetime column to df3
+    df3 = df3.withColumn("load_datetimestamp", current_timestamp())##convert in Postgres
+    
+    # Send the dataframe into Postgres which will create a JSON document out of it
+    db_target_url = "jdbc:postgresql://postgres_ins:5432/postgresdb"
+    table = "autoclaims_docs" #public.autoclaims_docs
+    db_target_properties =  {"driver": 'org.postgresql.Driver',"user":"postgres", "password":"data"}
+    
+    df3.write.jdbc(url=db_target_url, table=table, properties=db_target_properties, mode="append")#.mode("append")
+    #df3.show()
+    pass
+```
+<br>
+
+*For docker-compose configuration, see [Postgres](#storage).*
+
+## __Visualizations__
+
+### __Metabase__
+
+
+<br>
+
+*For docker-compose configuration, see [Metabase](#visualization).*
 
 
 
