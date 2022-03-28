@@ -28,7 +28,7 @@ services:
      - insurance-streaming
   
   spark:
-    image: jupyter/pyspark-notebook:spark-2'
+    image: 'jupyter/pyspark-notebook:spark-2'
     ports:
       - '8888:8888'
       - "4040-4080:4040-4080"
@@ -64,9 +64,12 @@ services:
      - "5050:80" 
     networks:
      - insurance-streaming
-
+  
   metabase:
     image: metabase/metabase
+    restart: "always"
+    ports:
+    - 3000:3000
     env_file:
      - ./config/metabase_database.env
     volumes:
