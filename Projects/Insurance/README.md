@@ -370,7 +370,7 @@ Validate table was created in database:
 
 ### __Processing Data Stream__
 <br>
-#### __1. Create and Test API__
+<strong>Create and Test API</strong>
 <br>
 
 __Create API to mimic production streaming__
