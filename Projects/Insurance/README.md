@@ -674,9 +674,9 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 ![](images/postman.png)
 
-![Source code](ApachSpark/01-streaming-kafka-src-dst.ipynb)
+![Source code](ApacheSpark/01-streaming-kafka-src-dst.ipynb)
 
-*For docker-compose configuration, see [Spark](#processing)*
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ### __Storing Data Stream__
 
