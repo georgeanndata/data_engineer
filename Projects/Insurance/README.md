@@ -373,7 +373,7 @@ Validate table was created in database:
 <strong>Create and Test API</strong>
 <br>
 
-__Create API to mimic production streaming__
+<strong>Step 1</strong>: Create API to mimic production streaming
   
   To mimic the claims streaming into the system, like it would in production, I created a POST API using FastAPI.
 
@@ -498,7 +498,7 @@ def produce_kafka_string(json_as_string):
 <br>
 
 __Prerequisites for API in Docker__
- 1. Create requirements.txt file to hold the libraries needed to build the container. The  library needed is kafka-python for writing to Kafka. 
+<strong>Step 1</strong>: Create requirements.txt file to hold the libraries needed to build the container. The  library needed is kafka-python for writing to Kafka. 
 
 ```python
 kafka-python
@@ -506,7 +506,7 @@ kafka-python
 
 ![Source code](API-Ingest/requirements.txt)<br>
 
-  2. Create dockerfile for building the container. It installed the kafka-python library so the API can connect to Kafka.
+<strong>Step 2</strong>: Create dockerfile for building the container. It installed the kafka-python library so the API can connect to Kafka.
 
 ```python
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
