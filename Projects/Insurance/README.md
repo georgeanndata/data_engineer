@@ -599,7 +599,7 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 <br>
 <br>
-*For docker-compose configuration, see [Kafka](#buffer)*
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 <br>
 
@@ -676,7 +676,6 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 ![Source code](ApacheSpark/01-streaming-kafka-src-dst.ipynb)
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ### __Storing Data Stream__
 
@@ -763,7 +762,6 @@ Spark jobs:
 
 <br>
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## __Visualizations__
 
@@ -787,6 +785,8 @@ metabase:
     networks:
       - insurance-streaming
 ```
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+
 Metabase_database.env holds the environment information 
 ```python
 ENV MB_DB_TYPE=postgres
@@ -819,7 +819,9 @@ Create some graphs and reports
 
 ![](images/dashboard.png)
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+
+
+
 
 
 # Follow Me On
