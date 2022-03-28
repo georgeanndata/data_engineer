@@ -360,7 +360,11 @@ def import_data(engine,table_name, csv_file_data):
 
 engine = db_connection.engine
 import_data(engine,table_name, csv_file_data)
+
 ```
+Validate table was created in database:
+![](images/autoclaims_table_bulk_import.png)
+
 
 ![Source code](app_p/bulk_import_auto_insurance_data.py)
 
@@ -368,7 +372,6 @@ import_data(engine,table_name, csv_file_data)
 
 ### __Processing Data Stream__
 <br>
-
 #### __1. Create and Test API__
 <br>
 
@@ -377,10 +380,10 @@ __Create API to mimic production streaming__
   To mimic the claims streaming into the system, like it would in production, I created a POST API using FastAPI.
 
 ```python
-# You need this to use FastAPI, work with statuses and be able to end HTTPExceptions
+# To use FastAPI, work with statuses and be able to end HTTPExceptions
 from fastapi import FastAPI, status, HTTPException
  
-# You need this to be able to turn classes into JSONs and return
+# To turn classes into JSONs and return
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
@@ -589,9 +592,13 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 #### __2.  Apache Kafka__
 <br>
-1. Create topic
-  - From */opt/bitnami.kafka/bin* in the Kafka container, enter <br>
-  *__kafka-topics.sh --create --topic auto-claims-ingestion-topic --bootstrap-server localhost:9093 --partitions 1 --replication-factor 1__*
+<strong>Step 1</strong>: Create topic
+  - From <strong>/opt/bitnami/kafka/bin</strong> in the Kafka container, enter: <br>
+  <strong><em>kafka-topics.sh --create --topic auto-claims-ingestion-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1</em></strong><br>
+  <strong>Step 2</strong>: Create topic for Spark output
+  - From <strong>/opt/bitnami/kafka/bin</strong> in the Kafka container, enter: <br>
+   <strong><em>./kafka-topics.sh --create --topic spark-output --bootstrap-server localhost:9092  --partitions 1 --replication-factor 1</em></strong>
+
 
 <br>
 
@@ -602,9 +609,13 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 #### __3. Apache Spark__
 <br>
 
-__Step 1__: Get token to get jupyter
+__Step 1__:  Create local consumer for spark topic
+<strong><em>
+./kafka-console-consumer.sh --topic spark-output --bootstrap-server localhost:9092</em></strong>
 
-__Step 2__: Create session
+__Step 2__: Get token for jupyter (from VS Code logs)
+
+__Step 3__: Create session
 ```python
 from pyspark.sql import SparkSession
 
@@ -619,7 +630,7 @@ spark = (SparkSession
 #sc = spark.sparkContext
 
 ```
-__Step 3__: Read message from Kafka
+__Step 4__: Read message from Kafka
 
 ```python
 # Read the message from the kafka stream
@@ -631,13 +642,13 @@ df = spark \
   .load()
 df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 ```
-__Step 4__: Create a small temporary view
+__Step 5__: Create a small temporary view
 
 ```python
 #Create a small temporary view for SparkSQL
 df.createOrReplaceTempView("message")
 ```
-__Step 5__: Write the message to the console
+__Step 6__: Write the message to the console
 ```python
 # Write out the message to the console of the environment
 res = spark.sql("SELECT * from message")
@@ -646,7 +657,7 @@ res.writeStream.format("console") \
             .start() 
 ```
 
-__Step 6__: Write the message back to another topic
+__Step 7__: Write the message back to another topic
 ```python
 # Write the message back into Kafka in another topic that you are going to listen to with a local consumer
 ds = df \
@@ -659,7 +670,12 @@ ds = df \
   .awaitTermination()
 ```
 
-__Step 7__: Test using Postman
+__Step 8__: Test using Postman
+
+From Postman, import file and enter localhost:80/autoclaims.  <br>
+*__(201 returned)__*
+
+![](images/postman.png)
 
 ![Source code](ApachSpark/01-streaming-kafka-src-dst.ipynb)
 
@@ -732,7 +748,19 @@ def foreach_batch_function(df, epoch_id):
 
 __Step 7__: Test using Postman
 
-__Step 8__: Log into Postgres to ensure table and data is created
+From Postman, import file and enter localhost:80/autoclaims.  <br>
+*__(201 returned)__*
+
+![](images/postman.png)
+
+__Step 8__: Log into Postgres to ensure table and data is created.
+![](images/db_docs.png)
+Log files:
+![](images/log.png)
+Spark jobs:
+![](images/sparkjobs.png)
+
+
 
 ![Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
 
@@ -744,22 +772,59 @@ __Step 8__: Log into Postgres to ensure table and data is created
 
 ### __Metabase__
 
+For the visualization of the data, I used the open source tool Metabase. In the docker-compose file, I used the metabase/metabase image, a volume location where the Metabase data will be presisted, its dependences on postgres and added it to the same netork as the other services.
 
+```python
+metabase:
+    image: metabase/metabase
+    restart: "always"
+    ports:
+    - 3000:3000
+    env_file:
+     - ./config/metabase_database.env
+    volumes:
+      # Volumes where Metabase data will be persisted
+      - '/var/lib/metabase-data'
+    depends_on:
+     - 'postgres_ins'
+    networks:
+      - insurance-streaming
+```
+Metabase_database.env holds the environment information 
+```python
+ENV MB_DB_TYPE=postgres
+ENV MB_DB_DBNAME= <database name>
+ENV MB_DB_PORT= 5432
+ENV MB_DB_USER= <metabase user>
+ENV MB_DB_PASS= <metabase password>
+# Make sure the firewall at the database server allows connections to port 54320
+ENV MB_DB_HOST=localhost
+ENV MB_ENCRYPTION_SECRET_KEY= <random key>
+ENV MB_JAVA_TIMEZONE=America/New_York
+ENV MB_PORT=3000
+```
 <br>
+<strong>Step 1</strong>: 
+Add Postgres database to Metabase
+
+![](images/metabase_db_config.png)
+
+Tables in database
+
+![](images/tables_n_db.png)
+
+Data in table
+
+![](images/data_n_table.png)
+
+<strong>__Step 2__</strong>: 
+Create some graphs and reports
+
+![](images/dashboard.png)
+
 
 *For docker-compose configuration, see [Metabase](#visualization).*
 
 
-
-# Conclusion
-Write a comprehensive conclusion.
-- How did this project turn out
-- What major things have you learned
-- What were the biggest challenges
-
 # Follow Me On
-Add the link to your LinkedIn Profile
-
-# Appendix
-
-[Markdown Cheat Sheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+My LinkedIn Profile: https://www.linkedin.com/in/gasauer/
