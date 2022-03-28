@@ -30,9 +30,7 @@ __Architecture__
     - [Processing Data Stream](#processing-data-stream)
     - [Storing Data Stream](#storing-data-stream)
   - [Visualizations](#visualizations)
-- [Conclusion](#conclusion)
 - [Follow Me On](#follow-me-on)
-- [Appendix](#appendix)
 
 
 # The Data Set
@@ -106,7 +104,7 @@ services:
 
 
 
-![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Processing
 
@@ -124,7 +122,7 @@ For the processing of the data, I used Apache Spark. In the docker-compose file,
       - insurance-streaming
 ```
 
-![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Storage
 
@@ -159,7 +157,7 @@ postgres_ins:
 ```
 
 
-![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Visualization
 
@@ -185,7 +183,7 @@ _*Ignored the metabase_database.env file for Github._
     networks:
       - insurance-streaming 
 ```
-![Source code](docker-compose-kafka-spark-postgres-metabase.yml)
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 # Pipelines
 
@@ -500,7 +498,7 @@ def produce_kafka_string(json_as_string):
 <br>
 
 __Prerequisites for API in Docker__
- 1. Create requirements.txt file to hold the libraries needed to build the container. The  library needed is kafak-python for writing to Kafka. 
+ 1. Create requirements.txt file to hold the libraries needed to build the container. The  library needed is kafka-python for writing to Kafka. 
 
 ```python
 kafka-python
@@ -588,7 +586,6 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 ![](images/postman.png)
 
-<br>
 
 #### __2.  Apache Kafka__
 <br>
@@ -601,7 +598,7 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 
 <br>
-
+<br>
 *For docker-compose configuration, see [Kafka](#buffer)*
 
 <br>
@@ -745,6 +742,7 @@ def foreach_batch_function(df, epoch_id):
     #df3.show()
     pass
 ```
+![Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
 
 __Step 7__: Test using Postman
 
@@ -753,20 +751,19 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 ![](images/postman.png)
 
-__Step 8__: Log into Postgres to ensure table and data is created.
+__Step 8__: Log into Postgres to ensure table and data is created
+
 ![](images/db_docs.png)
+
 Log files:
 ![](images/log.png)
+
 Spark jobs:
 ![](images/sparkjobs.png)
 
-
-
-![Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
-
 <br>
 
-*For docker-compose configuration, see [Postgres](#storage).*
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## __Visualizations__
 
@@ -822,8 +819,7 @@ Create some graphs and reports
 
 ![](images/dashboard.png)
 
-
-*For docker-compose configuration, see [Metabase](#visualization).*
+![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 
 # Follow Me On
