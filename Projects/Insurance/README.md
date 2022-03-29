@@ -104,7 +104,7 @@ services:
 
 
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Processing
 
@@ -122,7 +122,7 @@ For the processing of the data, I used Apache Spark. In the docker-compose file,
       - insurance-streaming
 ```
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Storage
 
@@ -157,7 +157,7 @@ postgres_ins:
 ```
 
 
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 ## Visualization
 
@@ -183,7 +183,7 @@ _*Ignored the metabase_database.env file for Github._
     networks:
       - insurance-streaming 
 ```
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 # Pipelines
 
@@ -364,7 +364,7 @@ Validate table was created in database:
 ![](images/autoclaims_table_bulk_import.png)
 
 
-![Source code](app_p/bulk_import_auto_insurance_data.py)
+[Source code](app_p/bulk_import_auto_insurance_data.py)
 
 ## Stream Processing
 
@@ -494,7 +494,7 @@ def produce_kafka_string(json_as_string):
 
 ```
 
-![Source code](API-Ingest/app/main.py)
+[Source code](API-Ingest/app/main.py)
 <br>
 
 __Prerequisites for API in Docker__
@@ -504,7 +504,7 @@ __Prerequisites for API in Docker__
 kafka-python
 ```
 
-![Source code](API-Ingest/requirements.txt)<br>
+[Source code](API-Ingest/requirements.txt)<br>
 
 <strong>Step 2</strong>: Create dockerfile for building the container. It installed the kafka-python library so the API can connect to Kafka.
 
@@ -519,7 +519,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY ./app /app
 ```
 
-![Source code](API-Ingest/dockerfile)
+[Source code](API-Ingest/dockerfile)
 
 <br>
 
@@ -577,7 +577,7 @@ def json_api (csv):
 json_api(csv_file_data)
 ```
 
-![Source code](client/transformer.py)
+[Source code](client/transformer.py)
 
 __Step 4__:
 
@@ -598,8 +598,8 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 
 <br>
-<br>
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 <br>
 
@@ -674,7 +674,7 @@ From Postman, import file and enter localhost:80/autoclaims.  <br>
 
 ![](images/postman.png)
 
-![Source code](ApacheSpark/01-streaming-kafka-src-dst.ipynb)
+[Source code](ApacheSpark/01-streaming-kafka-src-dst.ipynb)
 
 
 ### __Storing Data Stream__
@@ -741,7 +741,7 @@ def foreach_batch_function(df, epoch_id):
     #df3.show()
     pass
 ```
-![Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
+[Source code](ApachSpark/02-streaming-kafka-src-dst-postgres.ipynb)
 
 __Step 7__: Test using Postman
 
@@ -785,7 +785,7 @@ metabase:
     networks:
       - insurance-streaming
 ```
-![Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
+[Docker-compose](docker-compose-kafka-spark-postgres-metabase.yml)
 
 Metabase_database.env holds the environment information 
 ```python
