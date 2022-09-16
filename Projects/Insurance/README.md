@@ -37,7 +37,7 @@ __Architecture__
 
 I used the same [auto insurance fraud dataset](data/insurance_claims.csv) that I used from my data science project.  
 
-The dataset contains 40 attributes for 1,000 auto insurance claims, 247 that were labeled as fraudulent and 753 that were labeled as non-fraudulent. 
+The dataset contains 40 attributes for 1,000 auto insurance claims—247 that were labeled as fraudulent and 753 that were labeled as non-fraudulent. 
 
 ![](images/data_points_in_file.png)
 
@@ -269,7 +269,7 @@ csv_file_data.head()
 csv_file_data.info()
 ```
 
-I then took the dataframe and used SQLAcademy to import the data into the Postgres database. 
+I then took the dataframe and used SQLAlchemy to import the data into the Postgres database. 
 
 ```python
 #####################################################
